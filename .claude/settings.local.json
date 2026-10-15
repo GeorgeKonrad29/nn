@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash /home/gg/Documents/is924/code/nn/.claude/skills/marimo-pair/scripts/discover-servers.sh)",
+      "Bash(uv run *)",
+      "Bash(uvx marimo@latest edit --no-token --sandbox nn.py)",
+      "Bash(bash /home/gg/Documents/is924/code/nn/.claude/skills/marimo-pair/scripts/execute-code.sh --port 2718)",
+      "Bash(bash /home/gg/Documents/is924/code/nn/.claude/skills/marimo-pair/scripts/execute-code.sh --port 2718 -c \"import marimo as mo; help\\(mo.image\\)\")",
+      "mcp__notebooklm-mcp__notebook_list",
+      "mcp__notebooklm-mcp__refresh_auth",
+      "Bash(xdg-open \"https://notebooklm.google.com/notebook/00cbd57e-59cd-4dfb-b695-b9087b3fee95\")",
+      "mcp__notebooklm-mcp__notebook_get",
+      "mcp__notebooklm-mcp__notebook_query",
+      "Bash(bash /home/gg/Documents/is924/code/nn/.claude/skills/marimo-pair/scripts/execute-code.sh --port 2718 -c \"import marimo as mo; print\\(hasattr\\(mo, 'latex'\\)\\)\")",
+      "Bash(bash /home/gg/Documents/is924/code/nn/.claude/skills/marimo-pair/scripts/execute-code.sh --port 2718 -c \"import marimo as mo; help\\(mo.latex\\)\")",
+      "Bash(uvx marimo@latest edit --no-token --sandbox mnist.py)",
+      "Bash(bash /home/gg/Documents/is924/code/nn/.claude/skills/marimo-pair/scripts/execute-code.sh --port 2718 /tmp/nand_cell.py)",
+      "Bash(bash .claude/skills/marimo-pair/scripts/discover-servers.sh)",
+      "Bash(bash .claude/skills/marimo-pair/scripts/execute-code.sh --port 2719)",
+      "Bash(bash .claude/skills/marimo-pair/scripts/execute-code.sh --port 2718)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}
