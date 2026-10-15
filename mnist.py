@@ -1,6 +1,6 @@
 # /// script
 # dependencies = [
-#     "marimo",
+#     "marimo>=0.23.3",
 #     "matplotlib==3.10.8",
 #     "numpy==2.4.2",
 #     "torch==2.10.0",
@@ -11,7 +11,7 @@
 
 import marimo
 
-__generated_with = "0.23.6"
+__generated_with = "0.25.1"
 app = marimo.App(width="medium")
 
 
@@ -163,7 +163,7 @@ def _(deriv_sigmoid, np, one_hot):
 
         return dW1, db1, dW2, db2
 
-    return (backward_prop,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -192,30 +192,120 @@ def _(mo):
 
 
 @app.cell
-def _(backward_prop, forward_prop, init_params, np):
-    def train_model(X, Y, iterations=500, alpha=0.1):
-        W1, b1, W2, b2 = init_params()
-        history = []
+def _(np):
+    def worker_process(conn, X_chunk, Y_chunk):
+        """Bucle continuo ejecutado en un proceso CPU independiente."""
+        while True:
+            msg = conn.recv()
+            if msg is None:
+                break
 
-        for i in range(iterations):
-            Z1, A1, Z2, A2 = forward_prop(W1, b1, W2, b2, X)
-            dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y)
-            W1, b1, W2, b2 = update_params(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha)
+            W1, b1, W2, b2 = msg
 
-            if i % 50 == 0:
-                predictions = np.argmax(A2, axis=0)
-                accuracy = np.sum(predictions == Y) / Y.size
-                history.append(accuracy)
-                print(f"Iteration {i}: Accuracy {accuracy:.4f}")
+            # 1. Forward propagation local
+            Z1 = W1.dot(X_chunk) + b1
+            A1 = 1 / (1 + np.exp(-Z1))
+            Z2 = W2.dot(A1) + b2
+            expZ = np.exp(Z2 - np.max(Z2, axis=0, keepdims=True))
+            A2 = expZ / expZ.sum(axis=0, keepdims=True)
 
-        return W1, b1, W2, b2, history
+            # 2. Backward propagation (Sumas de la Opción A)
+            Y_oh = np.zeros((Y_chunk.size, 10))
+            Y_oh[np.arange(Y_chunk.size), Y_chunk] = 1
+            Y_oh = Y_oh.T
 
-    return (train_model,)
+            dZ2 = A2 - Y_oh
+            S_W2 = dZ2.dot(A1.T)
+            S_b2 = np.sum(dZ2, axis=1, keepdims=True)
+
+            dZ1 = W2.T.dot(dZ2) * (A1 * (1 - A1))
+            S_W1 = dZ1.dot(X_chunk.T)
+            S_b1 = np.sum(dZ1, axis=1, keepdims=True)
+
+            preds = np.argmax(A2, axis=0)
+            correct_count = int(np.sum(preds == Y_chunk))
+
+            conn.send((S_W1, S_b1, S_W2, S_b2, correct_count))
+
+    return (worker_process,)
 
 
 @app.cell
-def _(X_train, Y_train, train_model):
-    params = train_model(X_train, Y_train, iterations=100, alpha=0.5)
+def _(init_params, np, worker_process):
+    import multiprocessing as mp
+
+    def train_model_parallel(X, Y, iterations=100, alpha=0.5, num_workers=4):
+        m_total = Y.size
+        W1, b1, W2, b2 = init_params()
+        history = []
+
+        X_chunks = np.array_split(X, num_workers, axis=1)
+        Y_chunks = np.array_split(Y, num_workers)
+
+        ctx = mp.get_context("fork")
+        processes = []
+        parent_conns = []
+
+        for rank in range(num_workers):
+            parent_conn, child_conn = ctx.Pipe()
+            p = ctx.Process(
+                target=worker_process,
+                args=(child_conn, X_chunks[rank], Y_chunks[rank]),
+                daemon=True,
+            )
+            p.start()
+            processes.append(p)
+            parent_conns.append(parent_conn)
+
+        try:
+            for i in range(iterations):
+                for conn in parent_conns:
+                    conn.send((W1, b1, W2, b2))
+
+                sum_W1 = np.zeros_like(W1)
+                sum_b1 = np.zeros_like(b1)
+                sum_W2 = np.zeros_like(W2)
+                sum_b2 = np.zeros_like(b2)
+                total_correct = 0
+
+                for conn in parent_conns:
+                    s_w1, s_b1, s_w2, s_b2, correct = conn.recv()
+                    sum_W1 += s_w1
+                    sum_b1 += s_b1
+                    sum_W2 += s_w2
+                    sum_b2 += s_b2
+                    total_correct += correct
+
+                dW1 = sum_W1 / m_total
+                db1 = sum_b1 / m_total
+                dW2 = sum_W2 / m_total
+                db2 = sum_b2 / m_total
+
+                W1, b1, W2, b2 = update_params(
+                    W1, b1, W2, b2, dW1, db1, dW2, db2, alpha
+                )
+
+                if i % 10 == 0 or i == iterations - 1:
+                    accuracy = total_correct / m_total
+                    history.append(accuracy)
+                    print(f"Iteración {i:3d} | Precisión: {accuracy:.4f}")
+
+        finally:
+            for conn in parent_conns:
+                conn.send(None)
+            for p in processes:
+                p.join()
+
+        return W1, b1, W2, b2, history
+
+    return (train_model_parallel,)
+
+
+@app.cell
+def _(X_train, Y_train, train_model_parallel):
+    params = train_model_parallel(
+        X_train, Y_train, iterations=100, alpha=0.5, num_workers=4
+    )
     W1, b1, W2, b2, stats = params
     return W1, W2, b1, b2, stats
 

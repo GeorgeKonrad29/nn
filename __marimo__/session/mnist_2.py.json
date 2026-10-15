@@ -1,0 +1,334 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.25.1",
+    "script_metadata_hash": "8d2b288bedce8e71afd46fe07d293a1d"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "7e0e33a2c01288fa39b2a1e278af980d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"the-mnist-dataset\">The MNIST dataset</h2>\n<span class=\"paragraph\">First, we will load the MNIST dataset. The following slider will allow you to explore it.</span>\n<ul>\n<li>There are 60.000 images in the dataset.</li>\n<li>We will use 50.000 to train the neural network</li>\n<li>and 10.000 to test its accuracy</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "73c6bbe9cad0be68816b790d8909790c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Training set size: 50000 | Test set size: 10000</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "d2da193b849463054fbde7bf9b52fc4e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='vblA-0' random-id='e4015414-606b-1caf-2c6c-876e93b8d6ac'><marimo-slider data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eSelect Image Index&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-start='0' data-stop='59999' data-steps='[]' data-debounce='false' data-disabled='false' data-orientation='&quot;horizontal&quot;' data-show-value='false' data-include-input='false' data-full-width='false'></marimo-slider></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "c846ad48d74498c6aabd615c9b98624c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-mime-renderer data-mime='&quot;application/vnd.marimo+mimebundle&quot;' data-data='&quot;{&#92;&quot;image/png&#92;&quot;: &#92;&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwsAAAM1CAYAAAA/1m1nAAAAOnRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjEwLjgsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvwVt1zgAAAAlwSFlzAAAewgAAHsIBbtB1PgAALKdJREFUeJzt3XmUlfV5wPFnZBVZRsQIouIaUVyIFohaA9qo0Wpb1FTxJIrGxBps5WhwSdoYT+rWaLQISdC4xJpEreZUYnKqJIKJSIwoxgUltnWXGBBcUAGBX//weM8MPMPMwPUdlM/nnDlnZu57f897Z1ju97733rehlFICAABgNZt09A4AAAAbJrEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAbgRkzZkRDQ0M0NDTEqFGjOnp3APiIEAuwgRs1alTtTl57P8aOHdvRuw9sBJ577rl2//u08847d/RuA20gFgDaafvtt6/d4Xnuuec6endYi4/z7+pb3/pW7bZ961vf6ujdAT6mOnf0DgBtN2zYsBg+fHibt//0pz/9Ie4NwJp69eoVJ554YqvbbbnllhXsDbC+xAJ8hBxxxBEeQQQ2aH379o1JkyZ19G4AdeJpSAAAQEosAAAAKbEAG5HFixfHtttuW3tR5Omnn97qdS6//PLa9r17947/+7//a3Z503dB2X777Wvf//Wvfx1jxoyJnXbaKTbddNPYcsst48ADD4xJkybFsmXL2rXfb7/9dnz/+9+Po446KgYNGhQ9evSIXr16xS677BKnnHJK3Hvvve1aLyLisccei/POOy9GjBgR/fv3j65du0bPnj1j1113jeOOOy6uu+66eOONN9Lb+fzzz9e+v8MOO6Tv9DJjxowWZ7/22mtxxRVXxCGHHBLbbrttdO/ePRobG2P33XePcePGxezZs9t1W5555pkYP358DB48ODbbbLPo27dvDB06NL75zW/GSy+91O6fTXstXLgwLr300hg5cmQMGDAgunXrFv369YtPfepTMWHChJg7d26ra6zLW7s2/Xk3tb6/q2zdhx56KE499dT45Cc/WfsZDx8+PC655JJ48803W93X9r7QeuzYsbXtb7zxxmaXffAOaRdeeGHtexdeeKF3RAM+HAXYoI0cObJERImIcsEFF6z3etOnTy+bbLJJbc2pU6e2uO0jjzxSunbtWtv2Rz/60RrbPPvss7XLBw0aVJYvX16+8pWv1L6Xfey2225l3rx5bdrf2267rfTv33+t60VEOfLII8vrr7/e6nqLFy8uxx13XGloaGh1za222iq9nW35mD59ejp/0qRJpU+fPmu9bkNDQznllFPKsmXLWr09kydPLt27d29xrcbGxjJ16tQyffr02vdGjhzZpp99W1x33XWt3p5OnTqV8ePHlxUrVrS4zrrsX9MZTa3v72r1dS+44IJmf2dW/xg4cGB54IEH1rqvgwYNqm3/7LPPtnrbTjrppNr2N9xwQ7PLmv6b0NrHSSed1Oqselj93wHg48MLnGEjM2rUqDj33HPjkksuiYiIU045JR577LEYMGBAs+3eeeedOOGEE2L58uUREXH88ce36R1Ozj333LjmmmsiImKvvfaKoUOHRiklHn744dojzE899VQcfPDBMWvWrNh2221bXOvKK6+Ms88+O0opERHRu3fv2G+//WKbbbaJlStXxpNPPhmzZ8+OUkrcddddMWrUqJg5c2b06NEjXe+VV16Jgw8+OObNm1f7XmNjYxxwwAExYMCAeO+99+KFF16Ihx9+ON58881YunRpbbvevXvHuHHjIiLipptuirfeeisiIk488cTo1avXGrMGDhy4xvfGjx8f//7v/177ul+/frHffvtF//79Y+nSpTFnzpx44oknopQS119/fbzyyivxi1/8IjbZJD8IPGXKlNo+RUR06dIlRo0aFYMGDYpFixbFjBkzYtGiRXHsscfGxRdf3OLPeV1dfvnlMWHChNrX3bp1i5EjR8Z2220XixcvjunTp8eiRYti5cqVcdVVV8ULL7wQt99++xpHAuqtHr+rD0ycOLH2CP7OO+8cI0aMiK5du8bjjz9eOwL08ssvx+c+97m47777YujQoXW+NWsaPXp07LHHHvH73/8+HnrooYho+Z3SsndEGzVqVNx3330RETFy5Mi1HgVbFytWrIhp06bF7NmzY+HChdG9e/fo169f/MVf/EUMHz48unXrVtd5wIesY1sFaE29jyyUUsry5cvLsGHDauseeuihZdWqVc22+fKXv1y7fLvttmvxUfumjyh26dKlRETZYostyt13373GtlOnTi29e/eubX/YYYe1uI+/+tWvao/mdu3atVx66aXl7bffXmO7OXPmlN1337225umnn56u995775UDDjigtt2mm25aJk2aVJYvX77GtsuWLStTp04tf/d3f5eu1d5HiUt5/xH4D67Tu3fvcu2116az77333jJw4MDatpdddlm63h//+MdmRxRGjhxZXnzxxWbbLF26tIwfP772M2y67fqaOXNm6dSpU23Nww8/vPzpT39aY/6ECROaPdJ9xRVXpOvV88hCU+vyu2q6bteuXUv37t3LzTffvMZ2999/f7Pf1Z577pn+TtdlP9Z2ZOEDF1xwwTr929D035R6HWVq69GczTffvHzjG98ob731Vl3mAh8+sQAbuKb/sQ8bNqyMGzeuzR+vvfZai+s+88wzpWfPnrW1v/vd79Yu+9nPflb7/iabbFJ+85vftLjO6ncSNtlkkzJz5swWt582bVqz7X/961+vsc3KlSvLLrvsUtvmZz/72Vp/RvPnzy9bbbVVLVhWv9NcSinXXntts6hZ221qTXvv+L355pulsbGxdufzd7/73Vq3nzt3bi0EtthiizSSTjjhhNo+DBkyJN3mA6eeemqzn3k97iB+5jOfqa23//77r/UpU//0T//ULJTefPPNNbbZUGMhIsott9zS4rZPPPFE6datW23b6667ri778XGNhQ8+dt111zY/FRHoWGIBNnDteX7y6h+t3Sm5/vrra9t269atPProo+Wll14qffv2rX3/G9/4xlrXWP1Owhe/+MVWb9PRRx9d2/74449f4/L/+q//ql3e0qP7q7vkkkvW+uj14MGDa5efe+65bVqzJe2943fVVVfVth8/fnybZpx22mm169xxxx3NLlu8eHGzO6i/+MUv1rrWokWLymabbVa3O4hz585t9jt/5JFH1rr9kiVLSr9+/Wrb/+AHP1hjmw01Fg488MBWtz/rrLNq23/605+uy358FGOhV69eZezYseWWW24p8+bNK0uWLCnLli0rL774YvnP//zP8tnPfrbZz3aHHXYof/7zn+syH/jweDck2IidfPLJ8fd///cREbFs2bI44YQT4otf/GIsWrQoIiKGDx/e7pPAteV1DSeddFLt8+nTp69x+S9/+cva5yeccEKb5h588MG1z++///5mlz3//PPx9NNP174+44wz2rRmvdT79jzwwAO1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nDnlnHPOKY2NjeXxxx9f4/L33nuv7L///s1u9+TJk8vy5cvX2HbZsmVl6tSpLZ49uunZlb/61a+2uE9N3XDDDc3OXnviiSeW559/Pt121apV5f777y+nn3562XTTTctbb721xjZPP/10s7M4H3TQQeWll15qts3SpUvL2WefXSKidO3ata5n7Z05c2az389RRx1VXn311WbbLFu2rJx33nnNbnd2du0PfPvb365t19jYWH7729+usc0vf/nL0q9fv2a3fW3/la3L76rpul27di2bbrpp+clPfrLGdg888EDZdttta9sOGTKkLFu2LF3zueeea/b36dxzzy0rVqxots2LL75YDjvssNoZ1T/YtqUzOM+aNau2zYABA8rrr7/epttX7zM4P/vss2WbbbYpl112WXnuuefSbVatWlXuuuuuZmeybmhoaPXs40DHayhlPY+HAx+qUaNG1U5KNmzYsGbPf29Njx494t/+7d+afe+pp56Kfffdt/ZI9A9+8IM47bTT0uufd955cdlll0XE+2cKfvzxx+MTn/hEs22ee+652GGHHSLi/aeSjB49uvbC6L333juGDh0apZR4+OGH48knn6xdb8CAATFr1qy1vk//tddeG6effnrtkfWGhobYfffdY6+99orevXvHO++8E/Pnz48//OEPzd7b/vHHH4899thjjfVeeumlOPjgg+OZZ56pfa+xsTEOOOCAGDBgQKxYsSKef/75ePjhh+PNN9+MPn36xOuvv77GOtOmTYtDDz209vWIESNin332afY2m6effvoa56n45je/Gd/+9rdrX3fq1CmGDh0agwcPrp3U66WXXopHH3202Qtc33rrrfQtX7/3ve/FuHHjal937do1Ro0aFYMGDYrFixfH9OnT47XXXouuXbvGRRddFBMmTIiIiJEjR9blzL2XX355bc2I90/MddBBB8W2227bbP4HRo8eHXfccUeLz7V/4403Yvfdd6+dZ6OhoSEOOOCAGDx4cCxdujRmz55dO5fBjTfeGGPHjq1dt6X/ytbld9V0/6666qoYP358RLx/Qr8RI0ZEly5d4oknnoiHHnqotl3Pnj1jxowZse+++7b48xo3blx873vfq3293XbbxWc+85no3r17/O///m/MnDkzli9fHp/97Gejf//+tadA3XDDDc1u6wdWrVoV22+/fe0pPf37949DDz00+vXrV7sNw4YNi+OOO67Z9Zr+m1KPPwtN/w2IeP8pV3vuuWf069cvunTpEgsWLIgHH3yw2flTIiK+853vtOuoJdBBOrZVgNY0fRSwvR99+vRpttayZcvK3nvvXbv8b//2b9c6e/ny5WXfffetbf/Xf/3Xa2zT9MjCoEGDyvLly8uXvvSlte7XrrvuWp566qk23f5777237LLLLm2+zUOGDCkvv/xyi+u99tprZfTo0W1aa+DAgS2uM2bMmLVed/r06en1br311rL11lu3+fYMHz68LF26tMX9mDhx4hqPsq/+Z+DOO+8s06dPr+ujyR/44Q9/WHr37r3W29CpU6dy5plnrvFIeubhhx8u/fr1a3Gtrl27lsmTJ5dSmh8BWJv2/q5WX/df/uVfSkNDQ4vX33rrrcv999/f6m179913yxFHHLHWfTnyyCPL4sWLy0knndTqkYVSSvn5z3/e7KjR6h8nnXTSGtf5MI4stOffpYEDB5Y777xzvecC1RALsIGrZyycddZZtcsGDBhQFixY0Or8efPmlc0226x2vauvvrrZ5avHwgf++7//u3z+858v22+/fenWrVvp27dvOeCAA8rEiRPXeuc3s2LFinL77beXk08+uey2225l8803L506dSq9evUqO++8cznyyCPLxRdfXObMmdPmNX//+9+X8ePHl6FDh5Z+/fqVTp06lZ49e5bBgweX448/vtx4441lyZIlLV5/1apV5cc//nE58sgjyzbbbFO6d+/eplgo5f2nB914441lzJgxZeeddy59+vQpnTp1Kr179y677bZbOfroo8uVV15Z5s2b16bbMm/evPKP//iPZZdddimbbrppaWxsLHvuuWc5//zza091+rBioZRSFixYUC6++OJy4IEHlq222qp06dKl9O3bt+y9997l7LPPLk8++WS71lu4cGH5+te/Xvbcc8/Ss2fP0qNHj/LJT36yjBs3rtlabY2F9v6usnVnzZpVTj755LLzzjuXHj16lD59+pR99923XHTRRW1++k/TfTn00ENLv379SpcuXcrAgQPLEUccUW677bayatWqUkppcyyUUspjjz1WTjvttDJkyJDSq1evZmFTRSysWrWqPP744+Waa64pY8eOLcOGDSs77LBD6d27d+ncuXPp27dvGTJkSBk7dmy59dZb06f+ARsuT0MC1svqT0Na/YRo8FHT9GlI/osENnbeDQkAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAIOWtUwEAgJQjCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJDqXO8FGxoa6r0kAADQRvU857IjCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAqc4dvQMAH2WdOnWqZE6fPn0qmfNxdcYZZ1Qyp0ePHpXMiYjYddddK5kzbty4SuZcfvnllcyJiBgzZkwlc5YuXVrJnIiISy+9tJI5F154YSVz2HA4sgAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkOrc0TsA5LbbbrvKZnXt2rWSOfvvv38lcyIi/vIv/7KSOY2NjZXMOeaYYyqZw0fHSy+9VMmciRMnVjJn9OjRlcyJiHjrrbcqmfOHP/yhkjkREffdd19ls9i4OLIAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkGkoppa4LNjTUcznY4AwdOrSSOffee28lcyIi+vTpU9ks+DhbtWpVZbNOOeWUSuYsWbKkkjlVmj9/fiVzFi9eXMmciIh58+ZVNosNXz3v3juyAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApBpKKaWuCzY01HM52OD07du3kjkPPvhgJXMiInbcccfKZrHhq+rP3uuvv17JnIiIgw46qJI5y5cvr2RORESfPn0qmwV8tNTz7r0jCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAqc4dvQPwUbNo0aJK5kyYMKGSORERRx55ZCVz5syZU8mciIiJEydWNqsKjz76aGWzDjnkkErmvP3225XMiYgYMmRIJXPOPPPMSuYAVMWRBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAINVQSil1XbChoZ7LARXo3bt3JXPeeuutSuZEREyZMqWSOV/60pcqmfOFL3yhkjkRET/96U8rmwVA/dXz7r0jCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAqc4dvQNAx3vzzTc7ehfq7o033ujoXairL3/5y5XNuvXWWyuZs2rVqkrmALDuHFkAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSDaWUUtcFGxrquRzAOtlss80qmfPzn/+8kjkjR46sZE5ExOGHH17JnHvuuaeSOQAbm3revXdkAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAg1VBKKXVdsKGhnssBbNB22mmnSuY88sgjlcyJiHj99dcrmTN9+vRK5kREzJ49u5I5kydPrmRORESd//sGPkbq+e+DIwsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAECqoZRS6rpgQ0M9lwMgIkaPHl3ZrBtuuKGSOb169apkTpW+/vWvVzbrpptuqmTO/PnzK5kD1E897947sgAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKQaSimlrgs2NNRzOQAqtscee1Qy57vf/W4lcyIi/uqv/qqyWVWZMmVKJXMuuuiiSua8/PLLlcyBjUE97947sgAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkGoopZS6LtjQUM/lAPiYamxsrGzWUUcdVcmcG264oZI5EdX9f3vvvfdWMueQQw6pZA5sDOp5996RBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAINVQSil1XbChoZ7LAcBHxrJlyyqb1blz50rmrFixopI5hx12WCVzIiJmzJhR2SzoCPW8e+/IAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABAqnNH7wAAG5a99tqrkjnHHntsJXMiIoYNG1bJnM6dP37/rc6dO7eSOb/5zW8qmQO0jyMLAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABAqnNH7wDAR9muu+5ayZwzzjijkjkREUcffXQlc/r371/JnI+rlStXVjJn/vz5lcxZtWpVJXOA9nFkAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAg1bmjdwDYePTv37+yWWPGjKlkzhlnnFHJnO23376SOayf2bNnVzbroosuqmTO1KlTK5kDbJgcWQAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFJiAQAASIkFAAAgJRYAAICUWAAAAFKdO3oHgNxWW21V2azdd9+9kjmTJk2qZE5ExODBgyubxbp58MEHK5v1ne98p5I5d955ZyVzIiJWrVpV2Sxg4+XIAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkOrc0TsA9dC3b9/KZk2ZMqWSOUOHDq1kTkTEjjvuWNks1s0DDzxQ2awrrriikjl33313JXMiIt59993KZgF8nDiyAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQEgsAAEBKLAAAACmxAAAApMQCAACQ6tzRO0DHGDFiRCVzJkyYUMmc4cOHVzInImLgwIGVzWLdvfPOO5XMmThxYiVzLr744krmRES8/fbblc0CYMPmyAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJASCwAAQEosAAAAKbEAAACkxAIAAJDq3NE7QMcYPXr0x2rOx9HcuXMrm3XXXXdVMmfFihWVzImIuOKKKyqZ8/rrr1cyBwA6giMLAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAAApsQAAAKTEAgAAkBILAABASiwAAACphlJKqeuCDQ31XA4AAGiHet69d2QBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACAlFgAAgJRYAAAAUmIBAABIiQUAACDVud4LllLqvSQAANABHFkAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAICUWAACAlFgAAABSYgEAAEiJBQAAIPX/cFC4Ld74tLYAAAAASUVORK5CYII=&#92;&quot;, &#92;&quot;__metadata__&#92;&quot;: {&#92;&quot;image/png&#92;&quot;: {&#92;&quot;width&#92;&quot;: 390, &#92;&quot;height&#92;&quot;: 410}}}&quot;'></marimo-mime-renderer>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "e40d6814fde731ba0e75a9d0aa553df4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"parameter-initialization\">Parameter initialization</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "3587735f68016aa5226f73e9c8bed4d1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "5604f2c67f2ac41c934bb58ceb7fb918",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"helper-functions\">Helper functions</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "2df867cec2942c6e5184807c01202f57",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "596c9adbe36ba5bd7b7f4436781d06bf",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"forward-evaluation\">Forward evaluation</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "cca6b72778fca631c1af366c77ef0a62",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "d7258ed4a4c9f473dff252c7420a0d96",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"backward-propagation\">Backward propagation</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "b3d4536365a82f7554c662c6c6032790",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "cfe681387406428cd0cf913536640530",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"parameter-update\">Parameter update</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "70c93fe5ba871d639e3eff29d67b99f5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "28a4130a96d5786e5a92397d096097f3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"network-training\">Network training</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "9ea9e1527faada46d4fc3d02f8fd2465",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "df65ef6f7d96184eafab7ccd8f5438cd",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "interruption",
+          "evalue": "This cell was interrupted and needs to be re-run",
+          "traceback": []
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Iteration 0: Accuracy 0.0994\nIteration 50: Accuracy 0.1412\nIteration 100: Accuracy 0.5795\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">\"/tmp/marimo_13697/__marimo__cell_ROlb_.py\"</span>, line <span class=\"m\">1</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">params</span> <span class=\"o\">=</span> <span class=\"n\">train_model</span><span class=\"p\">(</span><span class=\"n\">X_train</span><span class=\"p\">,</span> <span class=\"n\">Y_train</span><span class=\"p\">,</span> <span class=\"n\">iterations</span><span class=\"o\">=</span><span class=\"mi\">1001</span><span class=\"p\">,</span> <span class=\"n\">alpha</span><span class=\"o\">=</span><span class=\"mf\">0.5</span><span class=\"p\">)</span>\n  File <span class=\"nb\">\"/tmp/marimo_13697/__marimo__cell_ZHCJ_.py\"</span>, line <span class=\"m\">7</span>, in <span class=\"n\">train_model</span>\n<span class=\"w\">    </span><span class=\"n\">dW1</span><span class=\"p\">,</span> <span class=\"n\">db1</span><span class=\"p\">,</span> <span class=\"n\">dW2</span><span class=\"p\">,</span> <span class=\"n\">db2</span> <span class=\"o\">=</span> <span class=\"n\">backward_prop</span><span class=\"p\">(</span><span class=\"n\">Z1</span><span class=\"p\">,</span> <span class=\"n\">A1</span><span class=\"p\">,</span> <span class=\"n\">Z2</span><span class=\"p\">,</span> <span class=\"n\">A2</span><span class=\"p\">,</span> <span class=\"n\">W1</span><span class=\"p\">,</span> <span class=\"n\">W2</span><span class=\"p\">,</span> <span class=\"n\">X</span><span class=\"p\">,</span> <span class=\"n\">Y</span><span class=\"p\">)</span>\n<span class=\"w\">                         </span><span class=\"pm\">~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">\"/tmp/marimo_13697/__marimo__cell_emfo_.py\"</span>, line <span class=\"m\">10</span>, in <span class=\"n\">backward_prop</span>\n<span class=\"w\">    </span><span class=\"n\">dW1</span> <span class=\"o\">=</span> <span class=\"mi\">1</span> <span class=\"o\">/</span> <span class=\"n\">m</span> <span class=\"o\">*</span> <span class=\"n\">dZ1</span><span class=\"o\">.</span><span class=\"n\">dot</span><span class=\"p\">(</span><span class=\"n\">X</span><span class=\"o\">.</span><span class=\"n\">T</span><span class=\"p\">)</span>\n<span class=\"w\">                  </span><span class=\"pm\">~~~~~~~^^^^^</span>\n  File <span class=\"nb\">\"/home/georgekonrad/.cache/uv/environments-v2/mnist-2-4eea4eca99c13ccb/lib/python3.14/site-packages/marimo/_utils/signals.py\"</span>, line <span class=\"m\">33</span>, in <span class=\"n\">__call__</span>\n<span class=\"w\">    </span><span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">_handler</span><span class=\"p\">(</span><span class=\"n\">signum</span><span class=\"p\">,</span> <span class=\"n\">frame</span><span class=\"p\">)</span>\n<span class=\"w\">    </span><span class=\"pm\">~~~~~~~~~~~~~^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">\"/home/georgekonrad/.cache/uv/environments-v2/mnist-2-4eea4eca99c13ccb/lib/python3.14/site-packages/marimo/_runtime/handlers.py\"</span>, line <span class=\"m\">74</span>, in <span class=\"n\">interrupt_handler</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"n\">MarimoInterrupt</span>\n<span class=\"gr\">KeyboardInterrupt</span>\n</pre></div>\n</span>",
+          "mimetype": "application/vnd.marimo+traceback"
+        }
+      ]
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "dad68ed3357ff16f82633334151c6887",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"model-evaluation\">Model evaluation</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "40965fdb0f4bb5c4c603a2f4c27f3996",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (KeyboardInterrupt): ",
+          "traceback": null
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "9e30156a2d596e9518f3e7a68f404087",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (KeyboardInterrupt): ",
+          "traceback": null
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "4fbdd232adec7184324fc2402c296eea",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"prediction-demo\">Prediction demo</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "3afb3594a22049c9aad8a99c2197fbad",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ulZA-0' random-id='5ad79bcb-5a56-daef-8f05-5bf891e1efb0'><marimo-slider data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eSelect Image Index&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-start='0' data-stop='59999' data-steps='[]' data-debounce='false' data-disabled='false' data-orientation='&quot;horizontal&quot;' data-show-value='false' data-include-input='false' data-full-width='false'></marimo-slider></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "c63f98fc159fda5c02373b01356d9120",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (KeyboardInterrupt): ",
+          "traceback": null
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "24ffeadd3a438d4b9cfc15819b0873fd",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}
